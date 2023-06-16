@@ -2,7 +2,6 @@
 from GPTConvo import *
 
 gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
-print("CALLEd")
 
 while True:
 
