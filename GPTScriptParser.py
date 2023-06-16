@@ -4,3 +4,8 @@ class UnityScriptBuilder:
         return
 
 
+
+class ScriptParser:
+
+    def __init__(self):
+

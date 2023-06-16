@@ -2,74 +2,61 @@ import os
 import openai
 import random
 import re
-from characterTraits import getRandomBeckyTrait
 from ScriptBuilder import *
 
-scriptBuilder = ScriptBuilder();
 
-# Load your API key from an environment variable or secret management service
-openai.api_key = os.getenv("OPEN_AI_API_KEY")
+class GPTConvo:
 
-conversation_history = [
+    def __init__(self, apiKey ):
+        self.scriptBuilder = ScriptBuilder();
+        openai.api_key = apiKey;
+        self.conversation_history = [
         {
             "role": "system",
-            "content": scriptBuilder.getSystemPrompt()         
-        },
-]
+            "content": self.scriptBuilder.getSystemPrompt()         
+        }]
 
-newConvo = True;
-objective = ""
+    def callGPT(self, retries = 3):
+        if retries < 0:
+            print("Failed after several retries.")
+            return None
+
+        self.conversation_history.append({"role": "user", "content": self.scriptBuilder.getNewScript()})
+
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",  # use your model
+                messages=self.conversation_history
+            )
+            self.conversation_history.append({"role": "assistant", "content": response['choices'][0]['message']['content']})
+            return response['choices'][0]['message']['content']
+
+        except Exception as ex:
+            print(ex);
+            self.callGPT(retries -1)
+
+gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
+
 while True:
 
-    newInput = scriptBuilder.getNewScript();
-    
-    if newConvo is False:
-        newInput = "Continue this story with 10 more lines. Remember, the previous objective was this : " + objective + ". In this scene one characters randomly kills another one of the characters. You can ONLY use these characters" + currentCharacters
+    script = gptConvo.callGPT();
+    if script is not None:
+        print (script);
+        lines = script.split('\n')
 
-    # Add the user's message to the conversation history
-    conversation_history.append({"role": "user", "content": newInput})
+        dialogue_list = []
+        for line in lines:
+            parsed = scriptBuilder.parse_string(line);
+            if parsed is not None:
+                dialogue_list.append(parsed)
 
-    # Get the model's response
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # use your model
-            messages=conversation_history
-        )
-    except Exception as ex:
-        print(ex);
-
-    # Add the assistant's response to the conversation history
-    script = response['choices'][0]['message']['content']
-    conversation_history.append({"role": "assistant", "content": script})
-    print (script);
-    lines = script.split('\n')
-
-    dialogue_list = []
-    for line in lines:
-        parsed = scriptBuilder.parse_string(line);
-        if parsed is not None:
-            dialogue_list.append(parsed)
-
-    print(dialogue_list);
+        print(dialogue_list);
 
         #if line.startswith("[OBJECTIVE"):
          #   objective = line.split("=")[1].strip().strip("]")
 
-    #for d in dialogue_list:
-     #   name, mood, line = d
-      #  print(f"Character: {name}\nMood: {mood}\nDialogue: {line}\n")
-
-    # Limit the conversation history to the last 10 exchanges (20 messages)
-    if len(conversation_history) > 3:
-        conversation_history = conversation_history[-3:]
-
-    #newConvo = False;    
+        #for d in dialogue_list:
+         #   name, mood, line = d
+          #  print(f"Character: {name}\nMood: {mood}\nDialogue: {line}\n")
+ 
     input("Press enter to continue...")
-
-#dialogue = script.split('---')[1]
-#print(dialogue)
-#dialogue_list = re.findall(r"(\w+): \((\w+)\) (.*)", dialogue)
-
-#for d in dialogue_list:
-#    name, mood, line = d
-#    print(f"Character: {name}\nMood: {mood}\nDialogue: {line}\n")
