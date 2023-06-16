@@ -1,34 +1,33 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-from google.colab import auth
 from googleapiclient.discovery import build
-from oauth2client.client import GoogleCredentials
-from google.colab import files
+from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import os
 import zipfile
 import time
 
-class DriveHandler:
+# Define the Google Drive scopes
+SCOPES = ['https://www.googleapis.com/auth/drive']
+
+class LocalDriveHandler:
 
     def __init__(self, folder_id):
         self.folder_id = folder_id
-        auth.authenticate_user()
         gauth = GoogleAuth()
-        gauth.credentials = GoogleCredentials.get_application_default()
+
+        # Use service account credentials
+        gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\10850K\Documents\GPT\ai-cartoon-390008-0a7b08b020a3.json", SCOPES)
+
         self.drive = GoogleDrive(gauth)
-        self.drive_service = build('drive', 'v3')
+        self.drive_service = build('drive', 'v3', credentials=gauth.credentials)
         self.now = datetime.now()
         self.timestamp_str = self.now.strftime("%Y-%m-%d_%H-%M-%S")
+
 
     def clearFiles(self):
         try:
             file_list = self.drive.ListFile({'q': f"'{self.folder_id}' in parents"}).GetList()
-
-            # Delete files from Colab environment
-            for file in file_list:
-                if os.path.isfile(file['title']):
-                    os.remove(file['title'])
 
             # Delete files from Google Drive
             for file in file_list:
@@ -40,11 +39,13 @@ class DriveHandler:
         except Exception as e:
             print(f'An error occurred in clearFiles: {e}')
 
+
+
     def downloadResult(self, script):
         try:
             time.sleep(7)
             file_list = self.drive.ListFile({'q': f"'{self.folder_id}' in parents"}).GetList()
-            print(file_list);
+            #print(file_list);
 
             for file in file_list:
                 print(f'Downloading file {file["title"]}')
@@ -59,10 +60,7 @@ class DriveHandler:
                     zipf.write(file['title'])
                 zipf.write('script.txt')
 
-            files.download(zip_file_name)
+            print(f"File downloaded and zipped as {zip_file_name}")
             self.clearFiles();
         except Exception as e:
             print(f'An error occurred in downloadResult: {e}')
-
-
-

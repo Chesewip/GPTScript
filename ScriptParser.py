@@ -1,6 +1,4 @@
 
-from tkinter.font import names
-
 
 class DialogueLine:
 

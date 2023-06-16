@@ -67,8 +67,9 @@ class VoiceGenerator:
             self.use_original_latents_method_diffusion,
             api_name = self.api
         )
-        except:
             print("File Generated")
+        except:
+            print("File Generated, return failed though?")
 
 
 class VoiceGeneratorManager:
