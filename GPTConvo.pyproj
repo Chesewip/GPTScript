@@ -11,6 +11,10 @@
     <OutputPath>.</OutputPath>
     <Name>GPTConvo</Name>
     <RootNamespace>GPTConvo</RootNamespace>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <Environment>OPEN_AI_API_KEY=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
+</Environment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

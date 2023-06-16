@@ -5,21 +5,23 @@ import re
 from characterTraits import getRandomBeckyTrait
 from ScriptBuilder import *
 
+scriptBuilder = ScriptBuilder();
+
 # Load your API key from an environment variable or secret management service
-openai.api_key = "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"
+openai.api_key = os.getenv("OPEN_AI_API_KEY")
 
 conversation_history = [
         {
             "role": "system",
-            "content": getSystemPrompt()         
+            "content": scriptBuilder.getSystemPrompt()         
         },
 ]
+
 newConvo = True;
 objective = ""
-currentCharacters = getCharacters();
 while True:
 
-    newInput = getNewScript();
+    newInput = scriptBuilder.getNewScript();
     
     if newConvo is False:
         newInput = "Continue this story with 10 more lines. Remember, the previous objective was this : " + objective + ". In this scene one characters randomly kills another one of the characters. You can ONLY use these characters" + currentCharacters
@@ -28,10 +30,13 @@ while True:
     conversation_history.append({"role": "user", "content": newInput})
 
     # Get the model's response
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # use your model
-        messages=conversation_history
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # use your model
+            messages=conversation_history
+        )
+    except Exception as ex:
+        print(ex);
 
     # Add the assistant's response to the conversation history
     script = response['choices'][0]['message']['content']
@@ -41,7 +46,7 @@ while True:
 
     dialogue_list = []
     for line in lines:
-        parsed = parse_string(line);
+        parsed = scriptBuilder.parse_string(line);
         if parsed is not None:
             dialogue_list.append(parsed)
 

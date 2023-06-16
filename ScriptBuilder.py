@@ -1,7 +1,9 @@
 import random
 import re
 
-funny_topics = [
+class ScriptObjects:
+
+    funny_topics = [
     "The nutritional value of cotton candy",
     "Ways to use a toaster that doesn't involve bread",
     "Believing they discovered a new color",
@@ -53,35 +55,35 @@ funny_topics = [
     "Trying to teach a dog to meow",
     "Thinking there's a secret message in a shampoo's instructions",
     "Believing the dishwasher will wash clothes too"
-]
+    ]
 
 
-characters = [
-    "Shawn- A character always has R rated replies",
-    #"Naman - An old man that is always interjecting with random phrases/sentences that make no sense",
-    "Gabbi - A character who is addicted to drugs and has mommy issues",
-    #"Mitch- A character who tries to be a gangsta",
-    "Xage - A knowledgable person who speaks like a caveman",
-    "Faiz - A schizophrenic character",
+    characters = [
+        ("Shawn", "A character always has R rated replies"),
+        #"Naman - An old man that is always interjecting with random phrases/sentences that make no sense",
+        ("Gabbi", "A character who is addicted to drugs and has mommy issues"),
+        #"Mitch- A character who tries to be a gangsta",
+        ("Xage", "A knowledgable person who speaks like a caveman"),
+        ("Faiz" , "A schizophrenic character"),
     #"Wiz - A virgin who is afraid of talking to women"
     ]
 
-names = [
+    names = [
     "Shawn",
     "Gabbi",
     "Xage",
     "Faiz"
     ]
 
-emotions = [ 
+    emotions = [ 
     "Angry", "Sad", "Happy", "Disgusted", "Neutral"
     ]
 
-locations = [
+    locations = [
     "Home", "Bar", "Alley", "Park", "Mall"
     ]
 
-randomEvents = [
+    randomEvents = [
     {"POOP": "In the middle of the script, {} ubruptly shits them selves"},
     {"GAY" : "{} ubruptly announces they are gay"},
     {"SHOOT" : "{} shoots {}"},
@@ -91,69 +93,89 @@ randomEvents = [
     {"QUAKE" : "A earthquake happens, but only {} can notice"},
     {"REPEAT" : "{} only repeats a single phrase"},
     {"STROKE" : "{} has a stroke and all their dialouge becomes hhhhhhhhhhhhhhhhhhhhhhhhhh"}
-]
+    ]
 
-def getCharacters():
-    numCharacters = random.randrange(4, 5)
-    print(numCharacters)
-    chars = unique_random_items(characters, numCharacters)
-    outputString = ""
-    for character in chars:
-        outputString += character + "\n"
-    return outputString
 
-def rollForRandomEvent():
-    eventName, eventDescrip = list(random.choice(randomEvents).items())[0]
-    numPlaceHolders = eventDescrip.count("{}")
-    chosen_names = random.sample(names, numPlaceHolders)
-    result = eventDescrip.format(*chosen_names)
-    return "['RANDOM EVENT'= " + eventName +  " " + chosen_names[0] + "] "  + result
 
-def unique_random_items(source_list, num_items):
-    container = set()  # Using a set to enforce uniqueness.
-    while len(container) < num_items:
-        item = random.choice(source_list)
-        container.add(item)  # If the item is already in the set, it won't be added again.
-    return list(container)
+class ScriptBuilder:
 
-def getNewScript():
-    return """Write me a dialouge. The characters are foul mouthed. They are talking about""" + random.choice(funny_topics) + """
-    You can ONLY Use these characters : """ + getCharacters() + """.
-    """+ rollForRandomEvent() + """. 
-    Start every dialouge line with # . 
+    def __init__(self):
+        self.scriptObjects = ScriptObjects()
+        self.characters = self.selectCharactersForScript()
+        self.charNames = []
+        for char in self.characters:
+            self.charNames.append(char[0])
 
-    Format it as such #[Character] (emotion) dialouge. Do not include scene directions."""
 
-def getSystemPrompt():
-    return """
-            Write some funny dialouge for characters similar to South Park.
-            The characters like to swear alot. They always say morally wrong things. Come up with a funny topic for our characters to talk about.
+    def unique_random_items(self,source_list, num_items):
+        container = set()  # Using a set to enforce uniqueness.
+        while len(container) < num_items:
+            item = random.choice(source_list)
+            container.add(item)  # If the item is already in the set, it won't be added again.
+        return list(container)
+
+
+    def selectCharactersForScript(self):
+        self.scriptObjects.characters;
+        numCharacters = random.randrange(4, 5)
+        return self.unique_random_items(self.scriptObjects.characters, numCharacters)
+
+
+    def getCharactersString(self):
+        outputString = ""
+        for char in self.characters:
+            outputString += char[0] + " - " + char[1] + "\n"
+        return outputString;
+
+    def rollForRandomEvent(self):
+        eventName, eventDescrip = list(random.choice(self.scriptObjects.randomEvents).items())[0]
+        numPlaceHolders = eventDescrip.count("{}")
+        chosen_names = random.sample(self.charNames, numPlaceHolders)
+        result = eventDescrip.format(*chosen_names)
+        return "['RANDOM EVENT'= " + eventName +  " " + chosen_names[0] + "] "  + result
+
+
+
+    def getNewScript(self):
+        return """Write me a dialouge. The characters are foul mouthed.
+       They are talking about""" + random.choice(self.scriptObjects.funny_topics) + """
+       You can ONLY Use these characters : """ + self.getCharactersString() + """.
+        """+ self.rollForRandomEvent() + """. 
+        Start every dialouge line with # . 
+
+        Format it as such #[Character] (emotion) dialouge. Do not include scene directions."""
+
+    def getSystemPrompt(self):
+        return """
+                Write some funny dialouge for characters similar to South Park.
+                The characters like to swear alot. They always say morally wrong things. 
+                Come up with a funny topic for our characters to talk about.
                         
-            ONLY If I say [RANDOM EVENT =], add the tag [RANDOM EVENT = ] in the script, and follow whatever the random event says to do.
-            """
+                ONLY If I say [RANDOM EVENT =], add the tag [RANDOM EVENT = ] in the script, and follow whatever the random event says to do.
+                """
 
-def parse_string(text):
+    def parse_string(self,text):
 
-    if not text.startswith('#'):
-        return None
+        if not text.startswith('#'):
+            return None
 
-    # Remove the hash character
-    text = text[1:]
+        # Remove the hash character
+        text = text[1:]
 
-    # Find the first parenthesis (the start of the mood)
-    mood_start = text.find('(')
+        # Find the first parenthesis (the start of the mood)
+        mood_start = text.find('(')
 
-    # Find the end of the mood
-    mood_end = text.find(')')
+        # Find the end of the mood
+        mood_end = text.find(')')
 
-    # Extract the name, mood and dialogue
-    name = text[:mood_start].strip()
-    mood = text[mood_start+1:mood_end]
-    dialogue = text[mood_end+2:].strip()
+        # Extract the name, mood and dialogue
+        name = text[:mood_start].strip()
+        mood = text[mood_start+1:mood_end]
+        dialogue = text[mood_end+2:].strip()
 
-    # Return as a dictionary
-    return {
-        'name': name,
-        'mood': mood,
-        'dialogue': dialogue
-    }
+        # Return as a dictionary
+        return {
+            'name': name,
+            'mood': mood,
+            'dialogue': dialogue
+        }
