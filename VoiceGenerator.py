@@ -71,7 +71,7 @@ class VoiceGenerator:
             print("File Generated")
 
 
-class VocalGeneratorManager:
+class VoiceGeneratorManager:
 
     def __init__(self):
         self.generators = {}
@@ -80,9 +80,12 @@ class VocalGeneratorManager:
     async def dispatchGenerators(self, dialogueLines: List[DialogueLine]):
         tasks = []
         for line in dialogueLines:
-            charGen = self.generators[line.character]
-            task = self.loop.run_in_executor(self.executor, charGen.generateLines, [line])  # Prepare the task
-            tasks.append(task)
+            if line.character in self.generators:  # Check if character generator exists
+                charGen = self.generators[line.character]
+                task = self.loop.run_in_executor(self.executor, charGen.generateLines, [line])  # Prepare the task
+                tasks.append(task)
+            else:
+                print(f"Generator not found for character: {line.character}")  # Or handle error in some other way
         await asyncio.gather(*tasks)  # Run the tasks concurrently
 
     def run(self, dialogueLines: List[DialogueLine]):
