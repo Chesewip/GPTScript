@@ -1,3 +1,4 @@
+
 import os
 import openai
 import random
@@ -34,5 +35,4 @@ class GPTConvo:
         except Exception as ex:
             print(ex);
             self.callGPT(retries -1)
-
 
