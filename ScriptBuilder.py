@@ -143,7 +143,7 @@ class ScriptBuilder:
         """+ self.rollForRandomEvent() + """. 
         Start every dialouge line with # . 
 
-        Format it as such #[Character] (emotion) dialouge. Do not include scene directions."""
+        Format it as such #[Character] (emotion): dialouge. Do not include scene directions."""
 
     def getSystemPrompt(self):
         return """
