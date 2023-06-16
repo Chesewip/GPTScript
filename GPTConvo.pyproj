@@ -13,7 +13,7 @@
     <RootNamespace>GPTConvo</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <Environment>OPEN_AI_API_KEY=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
+    <Environment>OPEN_AI_API_KEY=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====================
 </Environment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
