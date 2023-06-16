@@ -38,8 +38,13 @@ class ScriptParser:
         if name not in valid_names:
             return None
 
+        # Find the end of the emotion and check for the colon
+        emotion_end = line.find(')')
+        if line[emotion_end + 1] != ':':
+            # Insert the colon
+            line = line[:emotion_end + 1] + ':' + line[emotion_end + 1:]
+
         emotion_start = line.find('(') + 1  # find the start of the emotion
-        emotion_end = line.find(')')  # find the end of the emotion
         emotion = line[emotion_start:emotion_end]  # extract the emotion
 
         dialogue_start = line.find(':') + 2  # find the start of the dialogue
