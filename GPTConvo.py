@@ -44,13 +44,13 @@ while True:
         print (script);
         lines = script.split('\n')
 
-        dialogue_list = []
-        for line in lines:
-            parsed = scriptBuilder.parse_string(line);
-            if parsed is not None:
-                dialogue_list.append(parsed)
+        #dialogue_list = []
+        #for line in lines:
+         #   parsed = scriptBuilder.parse_string(line);
+          #  if parsed is not None:
+           #     dialogue_list.append(parsed)
 
-        print(dialogue_list);
+#        print(dialogue_list);
 
         #if line.startswith("[OBJECTIVE"):
          #   objective = line.split("=")[1].strip().strip("]")
