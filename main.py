@@ -1,3 +1,5 @@
+gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
+
 while True:
 
     script = gptConvo.callGPT();

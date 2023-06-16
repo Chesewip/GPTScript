@@ -35,4 +35,4 @@ class GPTConvo:
             print(ex);
             self.callGPT(retries -1)
 
-gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
+
