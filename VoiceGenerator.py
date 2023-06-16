@@ -1,4 +1,8 @@
 from gradio_client import Client
+from ScriptParser import *
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import List
 
 
 class VoiceGenerator:
@@ -35,8 +39,6 @@ class VoiceGenerator:
         for line in lines:
             self.generateLine(line, voice)
 
-        #downloadResult(script);
-
     def generateLine(self, text, voice):
         try:
             result = self.client.predict(
@@ -67,4 +69,25 @@ class VoiceGenerator:
         )
         except:
             print("File Generated")
+
+
+class VocalGeneratorManager:
+
+    def __init__(self):
+        self.generators = {}
+        self.executor = ThreadPoolExecutor()
+
+    async def dispatchGenerators(self, dialogueLines: List[DialogueLine]):
+        tasks = []
+        for line in dialogueLines:
+            charGen = self.generators[line.character]
+            task = self.loop.run_in_executor(self.executor, charGen.generateLines, [line])  # Prepare the task
+            tasks.append(task)
+        await asyncio.gather(*tasks)  # Run the tasks concurrently
+
+    def run(self, dialogueLines: List[DialogueLine]):
+        self.loop = asyncio.get_event_loop()
+        self.loop.run_until_complete(self.dispatchGenerators(dialogueLines))
+
+
 
