@@ -2,6 +2,7 @@ from gradio_client import Client
 from ScriptParser import *
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 from typing import List
 
 
@@ -76,22 +77,36 @@ class VoiceGeneratorManager:
 
     def __init__(self):
         self.generators = {}
-        self.executor = ThreadPoolExecutor()
-
-    async def dispatchGenerators(self, dialogueLines: List[DialogueLine]):
-        tasks = []
-        for line in dialogueLines:
-            if line.character in self.generators:  # Check if character generator exists
-                charGen = self.generators[line.character]
-                task = self.loop.run_in_executor(self.executor, charGen.generateLines, [line])  # Prepare the task
-                tasks.append(task)
-            else:
-                print(f"Generator not found for character: {line.character}")  # Or handle error in some other way
-        await asyncio.gather(*tasks)  # Run the tasks concurrently
-
-    def run(self, dialogueLines: List[DialogueLine]):
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self.dispatchGenerators(dialogueLines))
+
+    def dispatchGenerators(self, dialogueLines : list[DialogueLine] ):
+
+        charLines = {}
+
+        for line in dialogueLines:
+            if line.character not in charLines:
+                charLines[line.character] = []
+            charLines[line.character].append(line.dialogue)
+
+        tasks = []
+
+        for character, lines in charLines.items():
+            charGen = self.generators.get(character)
+            if charGen is None:
+                print(f"No generator for character {character}")
+                continue
+
+            task = self.loop.create_task(self.loop.run_in_executor(self.executor, charGen.generateLines, lines))
+            tasks.append(task)
+
+        return tasks
+
+    def run(self, dialogueLines : list[DialogueLine] ):
+        tasks = self.dispatchGenerators(dialogueLines)
+        if tasks:
+            done, pending = self.loop.run_until_complete(asyncio.wait(tasks))
+
 
 
 
