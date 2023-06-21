@@ -22,6 +22,7 @@ class GPTConvo:
             print("Failed after several retries.")
             return None
 
+        self.scriptBuilder = ScriptBuilder();
         self.conversation_history.append({"role": "user", "content": self.scriptBuilder.getNewScript()})
 
         try:
@@ -29,7 +30,13 @@ class GPTConvo:
                 model="gpt-3.5-turbo",  # use your model
                 messages=self.conversation_history
             )
-            self.conversation_history.append({"role": "assistant", "content": response['choices'][0]['message']['content']})
+            #self.conversation_history[1] = ({"role": "assistant", "content": response['choices'][0]['message']['content']})
+            self.conversation_history = [
+            {
+                "role": "system",
+                "content": self.scriptBuilder.getSystemPrompt()         
+            }]
+
             return response['choices'][0]['message']['content']
 
         except Exception as ex:

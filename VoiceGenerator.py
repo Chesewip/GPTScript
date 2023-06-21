@@ -1,6 +1,6 @@
 from gradio_client import Client
 from ScriptParser import *
-import asyncio
+import threading
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from typing import List
@@ -13,11 +13,11 @@ class VoiceGenerator:
         self.url = url
         self.input_prompt = ""
         self.line_delimiter = "\\n"
-        self.emotion = "Angry"
+        self.emotion = None
         self.custom_emotion = None
         self.voice = "Random"
         self.microphone_source = None
-        self.voice_chunks = 0
+        self.voice_chunks = 1
         self.candidates = 1
         self.seed = None
         self.samples = 2
@@ -28,8 +28,8 @@ class VoiceGenerator:
         self.cvvp_weight = 0
         self.top_p = 0.8
         self.diffusion_temperature = 1
-        self.length_penalty = 7
-        self.repetition_penalty = 7
+        self.length_penalty = 7.0
+        self.repetition_penalty = 5.0
         self.conditioningfree_k = 2
         self.experimental_flags = ["Conditioning-Free"]
         self.use_original_latents_method_ar = False
@@ -73,26 +73,68 @@ class VoiceGenerator:
             print("File Generated, return failed though?")
 
 
+import threading
+import queue
+
+class VoiceGeneratorWorker:
+    def __init__(self, voiceGen):
+        self.voiceGen = voiceGen
+        self.queue = queue.Queue()
+        self.thread = None
+
+    def add_line(self, line):
+        self.queue.put(line)
+
+    def _run(self):
+        while True:
+            line = self.queue.get()  # Blocks until a line is available
+            if line is None:  # We send None to signal the worker to stop
+                break
+            self.voiceGen.generateLine(line.dialogue, line.character)
+
+    def run(self):
+        self.thread = threading.Thread(target=self._run)
+        self.thread.start()
+
+
 class VoiceGeneratorManager:
+    def __init__(self, voiceGens):
+        # Create the workers
+        self.workers = [VoiceGeneratorWorker(voiceGen) for voiceGen in voiceGens]
+        self.char_to_worker = {}
 
-    def __init__(self):
-        self.generators = {}
-        self.executor = ThreadPoolExecutor()
+    def assign_character_to_worker(self, character):
+        if character not in self.char_to_worker:
+            # Assign the character to the worker with the least characters so far
+            self.char_to_worker[character] = min(self.workers, key=lambda worker: len([c for c, w in self.char_to_worker.items() if w == worker]))
 
-    async def dispatchGenerators(self, dialogueLines: List[DialogueLine]):
-        tasks = []
+    def dispatchGenerators(self, dialogueLines):
+        # Start the worker threads
+        for worker in self.workers:
+            worker.run()
+
+        # Assign characters to workers
         for line in dialogueLines:
-            if line.character in self.generators:  # Check if character generator exists
-                charGen = self.generators[line.character]
-                task = self.loop.run_in_executor(self.executor, charGen.generateLines, [line], "Mitch")  # Prepare the task
-                tasks.append(task)
-            else:
-                print(f"Generator not found for character: {line.character}")  # Or handle error in some other way
-        await asyncio.gather(*tasks)  # Run the tasks concurrently
+            self.assign_character_to_worker(line.character)
 
-    def run(self, dialogueLines: List[DialogueLine]):
-        self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self.dispatchGenerators(dialogueLines))
+        # Dispatch lines to workers
+        for line in dialogueLines:
+            worker = self.char_to_worker[line.character]
+            worker.add_line(line)
+
+        # When done, add None to signal the workers to stop
+        for worker in self.workers:
+            worker.queue.put(None)
+
+        # Wait for all workers to finish
+        for worker in self.workers:
+            worker.thread.join()
+
+
+    def run(self, dialogueLines):
+        self.dispatchGenerators(dialogueLines)
+
+
 
 
 
