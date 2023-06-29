@@ -7,7 +7,9 @@ import threading
 from LocalZipper import *
 from StreamLabsClient import *
 import os
+import platform
 from pathlib import Path
+
 
 
 def load_api_key(file_path):
@@ -18,10 +20,16 @@ def load_api_key(file_path):
     with open(file_path, 'r') as file:
         return file.read().strip()
 
-gptConvo = GPTConvo(load_api_key("/home/ubuntu/gptconvo/gptconvo/GPTSECRET.txt"))
 
-if gptConvo == None:
-    gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
+def get_api_key():
+    if platform.system() == 'Linux':
+        return load_api_key("/home/ubuntu/gptconvo/gptconvo/GPTSECRET.txt")
+    elif platform.system() == 'Windows':
+        return os.getenv("OPEN_AI_API_KEY")
+
+
+gptConvo = GPTConvo(get_api_key())
+
 
 voiceGens = [
     VoiceGenerator("https://956fff992f57c85934.gradio.live"),

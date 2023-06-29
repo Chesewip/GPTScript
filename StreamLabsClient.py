@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import urllib
+import platform
 from queue import Queue
 
 class Donation:
@@ -17,10 +18,16 @@ class Donation:
 
 class StreamlabsClient:
     def __init__(self):
-        home = os.path.expanduser("~")
-        self.token_path = os.path.join(home, "Documents", "GPT", "streamlabsAccessToken.txt")
+        if platform.system() == 'Linux':
+            self.token_path = "/home/ubuntu/gptconvo/gptconvo/streamlabsAccessToken.txt"
+        elif platform.system() == 'Windows':
+            home = os.path.expanduser("~")
+            self.token_path = os.path.join(home, "Documents", "GPT", "streamlabsAccessToken.txt")
+        else:
+            raise Exception(f"Unsupported platform: {platform.system()}")
+
         self.access_token = self._load_access_token()
-        if (self.access_token == None):
+        if self.access_token is None:
             raise Exception("No Access Token supplied")
 
     def _load_access_token(self):
