@@ -10,7 +10,18 @@ import os
 from pathlib import Path
 
 
-gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
+def load_api_key(file_path):
+    if not os.path.exists(file_path):
+        print(f"File {file_path} not found.")
+        return None
+
+    with open(file_path, 'r') as file:
+        return file.read().strip()
+
+gptConvo = GPTConvo(load_api_key("/home/ubuntu/gptconvo/gptconvo/GPTSECRET.txt"))
+
+if gptConvo == None:
+    gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
 
 voiceGens = [
     VoiceGenerator("https://956fff992f57c85934.gradio.live"),
