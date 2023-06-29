@@ -1,7 +1,5 @@
-from pickle import FALSE
 import random
 import re
-from tkinter import CURRENT
 from StreamLabsClient import *
 from DonationManager import *
 
@@ -10,10 +8,10 @@ class ScriptObjects:
     funny_topics = [
         "The characters start a cult",
         "{name1} plots to blow up the world",
-        "{name1}'s wild night at the underground adult puppet show",
-        "{name1}'s explicit recount of their adventures at the infamous debauchery festival",
-        "{name1} eccentric theory that squirrels are actually undercover spies for an intergalactic intelligence agency",
-        "{name1}'s scandalous affair with the local pizza delivery person, involving extra toppings and secret codes",
+        "{name1}s wild night at the underground adult puppet show",
+        "{name1}s explicit recount of their adventures at the infamous debauchery festival",
+        "{name1} eccentric theory about squirrels",
+        "{name1}s scandalous affair with the local pizza delivery person",
         "{name1} ridiculous attempt to start his own criminal empire by organizing a gang of misfit garden gnomes",
         "The explicit secrets revealed during a game of truth or dare with {name1}, causing shock and embarrassment",
         "The characters are playing would you rather",
@@ -60,7 +58,7 @@ class ScriptObjects:
         "{name1} gives another character a pack of black and milds and a 40 ounce",
         "{name1} gets a lobotomy",
         "{name1} accidently put their hand in a blender",
-        "The characters get drafted into the vietname war",
+        "The characters get drafted into the vietnam war",
         "{name1} starts selling feet pictures",
         "The characters start cooking meth",
         "The characters talk about the most breedable pokemons",
@@ -132,7 +130,18 @@ class ScriptObjects:
         "{name1} says they are getting deported",
         "{name1} tells an innapropriate secret",
         "{name1} explains why urethral electrostimulation is the next big thing after AI"
-        "{name1} believes they drank cyanide"
+        "{name1} believes they drank cyanide",
+        "{name1} invents the craziest new sex move",
+        "{name1} talks about a phrase they read on urban dictionary",
+        "{name1} tried microwaving themselves to get a tan",
+        "{name1} talks about their erectile dysfunction",
+        "The characters are all drunk",
+        "{name1} predicts the end of the universe",
+        "{name1} lost all their money in a pyramid scheme",
+        "The characters hold an intervention for one of the other characters",
+        "{name1} says they are going to rehab",
+        "{name1} says they haven't slept in 6 days",
+        "{name1} starts taking steroids"
     ]
 
     funny_topics_two = [
