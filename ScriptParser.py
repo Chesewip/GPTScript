@@ -23,6 +23,8 @@ forbidden_words = [
     "fag",
     "nigger",
     "nigga",
+    "n****",
+    "rape",
     "coon",
     "Breonna Taylor",
     "George Floyd",
@@ -121,6 +123,8 @@ class ScriptParser:
             return DialogueLine(name, emotion, dialogue)  # Return DialogueLine with bracket_info as an additional argument
         elif line.startswith("[RANDOM EVENT"):
             return self.parse_random_event(line)
+        elif line.startswith("%"):
+            self.summary = line[1:]
         else:
             return None
 
@@ -159,7 +163,7 @@ class ScriptParser:
                 eventString = "[EVENT={} ".format(rEvent.event_type) + ",".join(rEvent.characters)  + "]";
                 outputString += eventString + "\n"
 
-            nameString = "[NAME={}]".format(dLine.character)
+            nameString = "[NAME={} #{}]".format(dLine.character, dLine.emotion)
             outputString += (nameString + "  " + dLine.dialogue + "\n")
         return outputString
 
