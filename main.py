@@ -7,6 +7,8 @@ from EC2Grabber import *
 import threading
 from LocalZipper import *
 from StreamLabsClient import *
+import os
+from pathlib import Path
 
 
 gptConvo = GPTConvo(os.getenv("OPEN_AI_API_KEY"));
@@ -22,10 +24,15 @@ voiceDispatcher = VoiceGeneratorManager(voiceGens)
 
 #====================================================================
 
-ec2 = EC2Grabber('ec2-52-53-212-50.us-west-1.compute.amazonaws.com',
-                'C:/Users/10850K/Documents/GPT/wizPassword.pem',
-                 '/home/ubuntu/gptconvo/ai-voice-cloning/results/',
-                 'C:/Users/10850K/Documents/AI INPUTS/temp')
+pem_path = Path('Documents/GPT/wizPassword.pem')
+local_dir = Path('Documents/AI INPUTS/temp')
+
+ec2 = EC2Grabber(
+    'ec2-52-53-212-50.us-west-1.compute.amazonaws.com',
+    str(Path.home() / pem_path),  # where the password file is
+    '/home/ubuntu/gptconvo/ai-voice-cloning/results/',
+    str(Path.home() / local_dir)  #where to temp put the files when we grab them from EC2
+)
 
 import time
 from concurrent.futures import ThreadPoolExecutor
